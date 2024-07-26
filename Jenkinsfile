@@ -1,54 +1,36 @@
 pipeline {
+    agent any
 
-    parameters {
-        booleanParam(name: 'autoApprove', defaultValue: false, description: 'Automatically run apply after generating plan?')
-    } 
-    environment {
-        AWS_ACCESS_KEY_ID     = credentials('AWS_ACCESS_KEY_ID')
-        AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
-    }
-
-   agent  any
     stages {
-        stage('checkout') {
+        stage('Checkout') {
             steps {
-                 script{
-                        dir("terraform")
-                        {
-                            git "https://github.com/Arun7793/terraform_new.git"
-                        }
-                    }
-                }
-            }
-
-        stage('Plan') {
-            steps {
-                sh 'pwd;cd terraform/ ; terraform init'
-                sh "pwd;cd terraform/ ; terraform plan -out tfplan"
-                sh 'pwd;cd terraform/ ; terraform show -no-color tfplan > tfplan.txt'
+                checkout scm
             }
         }
-        stage('Approval') {
-           when {
-               not {
-                   equals expected: true, actual: params.autoApprove
-               }
-           }
-
-           steps {
-               script {
-                    def plan = readFile 'terraform/tfplan.txt'
-                    input message: "Do you want to apply the plan?",
-                    parameters: [text(name: 'Plan', description: 'Please review the plan', defaultValue: plan)]
-               }
-           }
-       }
-
-        stage('Apply') {
+        stage('Build') {
             steps {
-                sh "pwd;cd terraform/ ; terraform apply -input=false tfplan"
+                // Example: Compile your code or build your application
+                echo 'Building...'
+            }
+        }
+        stage('Test') {
+            steps {
+                // Example: Run your tests
+                echo 'Testing...'
+            }
+        }
+        stage('Deploy') {
+            steps {
+                // Example: Deploy your application
+                echo 'Deploying...'
             }
         }
     }
 
-  }
+    post {
+        always {
+            // Actions that will be executed at the end, regardless of the pipeline status
+            echo 'Cleaning up...'
+        }
+        success {
+            // Actions that will be executed only if the pi
